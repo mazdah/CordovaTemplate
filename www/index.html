@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <!--
+        Customize this policy to fit your own app's needs. For more guidance, see:
+            https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
+        Some notes:
+            * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+                * Enable inline JS: add 'unsafe-inline' to default-src
+        -->
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+        <meta name="color-scheme" content="light dark">
+
+        <link rel="stylesheet" href="css/libs/jquerymobile/jquery.mobile-1.4.5.min.css">
+        <link rel="stylesheet" href="css/libs/bootstrap/bootstrap.min.css">
+        <link rel="stylesheet" href="css/libs/bootstrap/bootstrap-icons.css">
+        <link rel="stylesheet" href="css/index.css">
+        <title>Hello World</title>
+    </head>
+    <body>
+    <!-- Modal -->
+    <div class="modal fade" id="imageviewer" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-warning modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">촬영된 이미지</h5>
+                    <button type="button" class="btn-close closemodal" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <img id="cordovaimg" width="100%" height="100%"/>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary closemodal" id="closemodal">닫 기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+
+    <!-- Media Modal -->
+    <div class="modal fade" id="mediaplayer" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mediatitle">음악 목록</h5>
+                    <button type="button" class="btn-close closemodal" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="list-group" id="music">
+                    </div>
+                    <br />
+                    <br />
+                    <div class="btn-group" role="group" aria-label="Basic outlined example">
+                        <button type="button" class="btn btn-outline-primary" id="btnprev"><i id="prevmusic" class="bi bi-chevron-double-left" style="font-size: 1.4rem; color: cornflowerblue;"></i></button>&nbsp;&nbsp;&nbsp;
+                        <button type="button" class="btn btn-outline-primary" id="btnplay"><i id="playmusic" class="bi bi-chevron-right" style="font-size: 1.4rem; color: cornflowerblue;"></i></button>&nbsp;&nbsp;&nbsp;
+                        <button type="button" class="btn btn-outline-primary" id="btnnext"><i id="nextmusic" class="bi bi-chevron-double-right" style="font-size: 1.4rem; color: cornflowerblue;"></i></button>&nbsp;&nbsp;&nbsp;
+                        <button type="button" class="btn btn-outline-primary" id="btnstop"><i id="stopmusic" class="bi bi-stop" style="font-size: 1.4rem; color: cornflowerblue;"></i></button>&nbsp;&nbsp;&nbsp;
+                        <button type="button" class="btn btn-outline-primary" id="btnvoldown"><i id="voldown" class="bi bi-volume-down" style="font-size: 1.4rem; color: cornflowerblue;"></i></button>&nbsp;&nbsp;&nbsp;
+                        <button type="button" class="btn btn-outline-primary" id="btnvolup"><i id="volup" class="bi bi-volume-up" style="font-size: 1.4rem; color: cornflowerblue;"></i></button>&nbsp;&nbsp;&nbsp;
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary closemodal" id="closemediamodal">닫 기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Media Modal -->
+
+    <!-- Media Capture Modal -->
+    <div class="modal fade" id="mediacapture" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-info modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mediacapturetitle">Media Cature Option</h5>
+                    <button type="button" class="btn-close closemodal" data-bs-dismiss="modal" aria-label="Close" data-title="cancel"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="limit" placeholder="캡쳐할 수량">
+                        <label for="limit">limit</label>
+                    </div>
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="duration" placeholder="캡쳐할 길이">
+                        <label for="duration">duration</label>
+                    </div>
+                    <input type="hidden" id="captype" value="" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary closemodal" id="cancelmcmodal" data-title="cancel">취 소</button>
+                    <button type="button" class="btn btn-primary" id="okmcmodal" data-title="ok">확 인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Media Capture Modal -->
+    <!------------------------------------------------------------------------------------------------------------------>
+        <div id="page" class="container">
+            <div>
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Existing</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Custom</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="alert alert-primary" role="alert">
+                <a href="https://cordova.apache.org/contribute/" rel="external">Cordova Existing Plugins</a>
+            </div>
+            <div class="accordion" id="accordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading1">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
+                            Camera Plugin&nbsp;&nbsp;<span class="badge bg-danger">2</span>
+                        </button>
+                    </h2>
+                    <div id="collapse1" class="accordion-collapse collapse show" aria-labelledby="heading1" data-bs-parent="#accordion">
+                        <div class="accordion-body">
+                            <input id="btncamera" class="btn btn-primary" type="button" value="Camera">
+                            <input id="btnphotolib" class="btn btn-primary" type="button" value="Photo Library">
+                            <div class="alert alert-danger" role="alert">
+                                <a href="https://github.com/apache/cordova-plugin-camera" rel="external">상세 정보 (Github)</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading2">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+                            Device Plugin
+                        </button>
+                    </h2>
+                    <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="heading2" data-bs-parent="#accordion">
+                        <div class="accordion-body">
+                            <input id="btndevice" class="btn btn-primary" type="button" value="Device" data-bs-toggle="collapse" data-bs-target="#devicecollapse" aria-expanded="false" aria-controls="devicecollapse">
+                            <div class="collapse" id="devicecollapse">
+                                <div class="card card-body" id="deviceinfo">
+                                </div>
+                            </div>
+                            <div class="alert alert-danger" role="alert">
+                                <a href="https://github.com/apache/cordova-plugin-device" rel="external">상세 정보 (Github)</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading3">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+                            Dialog Plugin&nbsp;&nbsp;<span class="badge bg-danger">6</span>
+                        </button>
+                    </h2>
+                    <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="heading3" data-bs-parent="#accordion">
+                        <div class="accordion-body">
+                            <input id="btnalert" class="btn btn-primary btnport" type="button" value="Alert(plug-in)"><br />
+                            <input id="btnconfirm" class="btn btn-primary btnport" type="button" value="Confirm(plug-in)"><br />
+                            <input id="btnprompt" class="btn btn-primary btnport" type="button" value="Prompt(plug-in)"><br />
+                            <input id="btnbeep" class="btn btn-primary btnport" type="button" value="Beep(plug-in)"><br />
+                            <input id="btnjalert" class="btn btn-primary btnport" type="button" value="Alert(javascript)"><br />
+                            <input id="btnjconfirm" class="btn btn-primary btnport" type="button" value="Confirm(javascript)">
+                            <div class="alert alert-danger" role="alert">
+                                <a href="https://github.com/apache/cordova-plugin-dialogs" rel="external">상세 정보 (Github)</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading4">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4" aria-expanded="false" aria-controls="collapse4">
+                            File Plugin
+                        </button>
+                    </h2>
+                    <div id="collapse4" class="accordion-collapse collapse" aria-labelledby="heading4" data-bs-parent="#accordion">
+                        <div class="accordion-body">
+                            <input id="btnfile" class="btn btn-primary" type="button" value="File" data-bs-toggle="collapse" data-bs-target="#filecollapse" aria-expanded="false" aria-controls="filecollapse">
+                            <div class="collapse" id="filecollapse">
+                                <div class="card card-body" id="fileinfo">
+                                    <ul class="list-group list-group-flush" id='dirlist'>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="alert alert-danger" role="alert">
+                                <a href="https://github.com/apache/cordova-plugin-file" rel="external">상세 정보 (Github)</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading5">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+                            Geolocation Plugin
+                        </button>
+                    </h2>
+                    <div id="collapse5" class="accordion-collapse collapse" aria-labelledby="heading5" data-bs-parent="#accordion">
+                        <div class="accordion-body">
+                            <input id="btngeo" class="btn btn-primary" type="button" value="Geolocation" data-bs-toggle="collapse" data-bs-target="#geocollapse" aria-expanded="false" aria-controls="geocollapse">
+                            <div class="collapse" id="geocollapse">
+                                <div class="card card-body" id="geoinfo">
+                                    <ul class="list-group list-group-flush" id='geolist'>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="alert alert-danger" role="alert">
+                                <a href="https://github.com/apache/cordova-plugin-geolocation" rel="external">상세 정보 (Github)</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading6">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse6" aria-expanded="false" aria-controls="collapse6">
+                            Inappbrowser Plugin
+                        </button>
+                    </h2>
+                    <div id="collapse6" class="accordion-collapse collapse" aria-labelledby="heading6" data-bs-parent="#accordion">
+                        <div class="accordion-body">
+                            <input id="btnib" class="btn btn-primary" type="button" value="Inappbrowser">
+                            <div class="alert alert-danger" role="alert">
+                                <a href="https://github.com/apache/cordova-plugin-inappbrowser" rel="external">상세 정보 (Github)</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading7">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse7" aria-expanded="false" aria-controls="collapse7">
+                            Media Plugin
+                        </button>
+                    </h2>
+                    <div id="collapse7" class="accordion-collapse collapse" aria-labelledby="heading7" data-bs-parent="#accordion">
+                        <div class="accordion-body">
+                            <input id="btnmedia" class="btn btn-primary" type="button" value="Media">
+                            <div class="alert alert-danger" role="alert">
+                                <a href="https://github.com/apache/cordova-plugin-media" rel="external">상세 정보 (Github)</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading8">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse8" aria-expanded="false" aria-controls="collapse8">
+                            Media Capture Plugin&nbsp;&nbsp;<span class="badge bg-danger">3</span>
+                        </button>
+                    </h2>
+                    <div id="collapse8" class="accordion-collapse collapse" aria-labelledby="heading8" data-bs-parent="#accordion">
+                        <div class="accordion-body">
+                            <div class="alert alert-success" role="alert">
+                                iOS의 경우 limit 옵션은 무시되어 녹음, 이미지, 동영상은 1개씩만 캡쳐된다.
+                            </div><br />
+                            <input id="btnacapture" class="btn btn-primary btnport" data-title="A" type="button" value="Audio Capture"><br />
+                            <input id="btnacipture" class="btn btn-primary btnport" data-title="I" type="button" value="Image Capture"><br />
+                            <input id="btnacvpture" class="btn btn-primary btnport" data-title="V" type="button" value="Video Capture">
+                            <div class="alert alert-danger" role="alert">
+                                <a href="https://github.com/apache/cordova-plugin-media-capture" rel="external">상세 정보 (Github)</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading9">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse9" aria-expanded="false" aria-controls="collapse9">
+                            Network Information Plugin
+                        </button>
+                    </h2>
+                    <div id="collapse9" class="accordion-collapse collapse" aria-labelledby="heading9" data-bs-parent="#accordion">
+                        <div class="accordion-body">
+                            <input id="btnnet" class="btn btn-primary" type="button" value="Network Information">
+                            <div class="alert alert-danger" role="alert">
+                                <a href="https://github.com/apache/cordova-plugin-network-information" rel="external">상세 정보 (Github)</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading10">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse10" aria-expanded="false" aria-controls="collapse10">
+                            Screen Orientation Plugin&nbsp;&nbsp;<span class="badge bg-danger">5</span>
+                        </button>
+                    </h2>
+                    <div id="collapse10" class="accordion-collapse collapse" aria-labelledby="heading10" data-bs-parent="#accordion">
+                        <div class="accordion-body">
+                            <input id="btnport" class="btn btn-primary btnport" type="button" value="Screen 세로(정방향) 고정"><br />
+                            <input id="btnrport" class="btn btn-primary btnport" type="button" value="Screen 세로(역방향) 고정"><br />
+                            <input id="btnlland" class="btn btn-primary btnport" type="button" value="Screen 가로(시계방향) 고정"><br />
+                            <input id="btnrland" class="btn btn-primary btnport" type="button" value="Screen 가로(반시계방향) 고정"><br />
+                            <input id="btnunlock" class="btn btn-primary btnport" type="button" value="Screen 고정 해제"><br />
+                            <div class="alert alert-danger" role="alert">
+                                <a href="https://github.com/apache/cordova-plugin-screen-orientation" rel="external">상세 정보 (Github)</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading11">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse11" aria-expanded="false" aria-controls="collapse11">
+                            Splash Screen
+                        </button>
+                    </h2>
+                    <div id="collapse11" class="accordion-collapse collapse" aria-labelledby="heading11" data-bs-parent="#accordion">
+                        <div class="accordion-body">
+                            <input id="btnsplash" class="btn btn-primary" type="button" value="Splash Screen 띄우기">
+                            <div class="alert alert-danger" role="alert">
+                                <a href="https://github.com/apache/cordova-plugin-splashscreen" rel="external">상세 정보 (Github)</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading12">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse12" aria-expanded="false" aria-controls="collapse12">
+                            Statusbar Plugin&nbsp;&nbsp;<span class="badge bg-danger">9</span>
+                        </button>
+                    </h2>
+                    <div id="collapse12" class="accordion-collapse collapse" aria-labelledby="heading12" data-bs-parent="#accordion">
+                        <div class="accordion-body">
+                            <input id="btnoverlay" class="btn btn-primary btnport" type="button" data-bs-toggle="button" value="StatusBar.overlaysWebView - true"><br />
+                            <input id="btnstyledefault" class="btn btn-primary btnport" type="button" value="StatusBar.styleDefault"><br />
+                            <input id="btnstylelight" class="btn btn-primary btnport" type="button" value="StatusBar.styleLightContent"><br />
+                            <input id="btnstyleblackT" class="btn btn-primary btnport" type="button" value="StatusBar.styleBlackTranslucent"><br />
+                            <input id="btnstyleblackO" class="btn btn-primary btnport" type="button" value="StatusBar.styleBlackOpaque"><br />
+                            <input id="btnbgcolorN" class="btn btn-primary btnport" type="button" value="StatusBar.backgroundColorByName"><br />
+                            <select class="form-select" id="colname" aria-label="Default select example">
+                                <option selected value="">색상을 선택해주세요.</option>
+                                <option value="black">검은색</option>
+                                <option value="red">빨간색</option>
+                                <option value="green">초록색</option>
+                                <option value="blue">파란색</option>
+                                <option value="cyan">하늘색</option>
+                                <option value="purple">보라색</option>
+                                <option value="orange">주황색</option>
+                                <option value="grey">회색</option>
+                                <option value="lightgrey">연한회색</option>
+                                <option value="darkgrey">짙은회색</option>
+                            </select><br />
+                            <input id="btnbgcolorH" class="btn btn-primary btnport" type="button" value="StatusBar.backgroundColorByHexString"><br />
+                            <label for="colorInput" class="form-label">Color picker</label>
+                            <input type="color" class="form-control form-control-color" id="colorInput" value="#563d7c" title="색상을 선택하세요."><br />
+                            <input id="btnhide" class="btn btn-primary btnport" type="button" value="StatusBar.hide"><br />
+                            <input id="btnshow" class="btn btn-primary btnport" type="button" value="StatusBar.show">
+                            <div class="alert alert-danger" role="alert">
+                                <a href="https://github.com/apache/cordova-plugin-statusbar" rel="external">상세 정보 (Github)</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading13">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse13" aria-expanded="false" aria-controls="collapse13">
+                            Vibration Plugin
+                        </button>
+                    </h2>
+                    <div id="collapse13" class="accordion-collapse collapse" aria-labelledby="heading13" data-bs-parent="#accordion">
+                        <div class="accordion-body">
+                            <div class="alert alert-success" role="alert">
+                                pattern example <br /><br />
+                                
+                                // Vibrate for 1 second<br />
+                                // Wait for 1 second<br />
+                                // Vibrate for 3 seconds<br />
+                                // Wait for 1 second<br />
+                                // Vibrate for 5 seconds<br />
+                                navigator.vibrate([1000, 1000, 3000, 1000, 5000]);
+                                <br />
+                                <br />
+                                파라미터 입력은 ,로 구분된 숫자만 공백 없이 입력
+                                <em style="color: red;">iOS는 패턴을 지원하지 않음</em>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="vibduration" placeholder="각 회차 지속 시간 예)1000, 2000, 3000">
+                                <label for="vibduration">각 회차 지속 시간</label>
+                            </div>
+                            <input id="btnvib" class="btn btn-primary" type="button" value="Vibration">
+                            <div class="alert alert-danger" role="alert">
+                                <a href="https://github.com/apache/cordova-plugin-vibration" rel="external">상세 정보 (Github)</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="cordova.js"></script>
+        <script src="js/libs/jquery/jquery-3.6.0.min.js"></script>
+        <script src="js/libs/jquerymobile/jquery.mobile-1.4.5.min.js"></script>
+        <script src="js/libs/bootstrap/bootstrap.min.js"></script>
+        <script src="js/index.js"></script>
+    </body>
+</html>
